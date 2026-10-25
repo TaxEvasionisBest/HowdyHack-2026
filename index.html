@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aggie Hangman</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div><h1>Aggie Hangman</h1><span id="score"></span></div></header>
+<main>
+  <div class="card">
+    <svg class="stage" viewBox="0 0 200 210" aria-label="Hangman drawing">
+      <path class="post" d="M25 190 H105 M55 190 V20 H140 V45"/>
+      <circle class="part hidden" cx="140" cy="62" r="17"/>
+      <path class="part hidden" d="M140 79 V130"/>
+      <path class="part hidden" d="M140 92 L118 114"/>
+      <path class="part hidden" d="M140 92 L162 114"/>
+      <path class="part hidden" d="M140 130 L121 165"/>
+      <path class="part hidden" d="M140 130 L159 165"/>
+    </svg>
+    <p id="clue"></p>
+    <div id="word" aria-live="polite"></div>
+    <p id="status" role="status"></p>
+    <div id="keys"></div>
+    <div id="fact" hidden><b>Did you know?</b><span id="factText"></span></div>
+    <button id="again" hidden>Play again</button>
+  </div>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
