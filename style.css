@@ -1,105 +1,156 @@
+/* ---------- Colors (change these to restyle everything) ---------- */
 :root {
-  --maroon:#500000; --bg:#f2f0ee; --card:#ffffff; --ink:#2a1f1f; --muted:#6f6262;
-  --accent:#500000; --accent-ink:#ffffff; --bad:#b3261e; --line:#2a1f1f; --note:#f6ecec;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  --maroon: #500000;
+  --bg: #f2f0ee;
+  --card: #ffffff;
+  --ink: #2a1f1f;
+  --muted: #6f6262;
+  --accent: #500000;
+  --accent-text: #ffffff;
+  --bad: #b3261e;
+  --note: #f6ecec;
 }
-
-/* Dark mode: used automatically when your device is set to dark */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:#1a1010; --card:#271818; --ink:#f4eaea; --muted:#bba7a7;
-    --accent:#d98a8a; --accent-ink:#2a0c0c; --bad:#ff8f86; --line:#f4eaea; --note:#331f1f;
+  :root {
+    --bg: #1a1010;  --card: #271818;  --ink: #f4eaea;  --muted: #bba7a7;
+    --accent: #d98a8a;  --accent-text: #2a0c0c;  --bad: #ff8f86;  --note: #331f1f;
   }
 }
-:root[data-theme="dark"] {
-  --bg:#1a1010; --card:#271818; --ink:#f4eaea; --muted:#bba7a7;
-  --accent:#d98a8a; --accent-ink:#2a0c0c; --bad:#ff8f86; --line:#f4eaea; --note:#331f1f;
-}
 
-html { scroll-padding-top:env(safe-area-inset-top,0px); }
-*,*::before,*::after { box-sizing:inherit; }
+/* ---------- Page and background designs ---------- */
+* { box-sizing: border-box; }
 
 body {
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font:16px/1.5 Georgia,"Times New Roman",serif;
+  margin: 0;
+  color: var(--ink);
+  font: 16px/1.5 Georgia, serif;
+  background-color: var(--bg);
+  /* Design 1: a tiled pattern of small maroon stars */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M32 14l4 10h10l-8 7 3 11-9-6-9 6 3-11-8-7h10z' fill='%23500000' fill-opacity='.08'/%3E%3C/svg%3E");
 }
 
-/* Maroon header with title and score */
-header { background:var(--maroon); color:#fff; padding:14px 16px; }
-header div {
-  max-width:480px; margin:0 auto;
-  display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+/* Design 2: faint stadium-style rings rising from the bottom */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: repeating-radial-gradient(
+    circle at 50% 115%, transparent 0 46px, rgba(80, 0, 0, .07) 46px 50px);
 }
-h1 { margin:0; font-size:1.5rem; }
-#score { font-size:.9rem; opacity:.85; font-family:system-ui,sans-serif; }
 
-main { max-width:480px; margin:0 auto; padding:16px 16px 36px; }
+/* Design 4: "A&M" wordmark and collie silhouettes behind everything */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--accent);
+}
+.wordmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font: 900 min(46vw, 260px) / 1 Georgia, serif;
+  letter-spacing: -.04em;
+  white-space: nowrap;
+  opacity: .07;
+}
+.collie {
+  position: absolute;
+  width: min(46vw, 300px);
+  height: auto;
+  fill: currentColor;
+  opacity: .13;
+}
+.collie-left  { left: -20px;  bottom: 10px; }
+.collie-right { right: -20px; top: 90px; transform: scaleX(-1); }  /* mirrored */
+
+/* ---------- Header ---------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px max(16px, calc(50% - 224px));
+  color: #fff;
+  /* Design 3: diagonal stripes on the maroon header */
+  background: repeating-linear-gradient(
+    135deg, #500000 0 14px, #5c0a0a 14px 28px);
+}
+h1 { margin: 0; font-size: 1.5rem; }
+#score { font: .9rem system-ui, sans-serif; opacity: .85; }
+
+/* ---------- Game card ---------- */
 .card {
-  background:var(--card);
-  border-radius:12px;
-  padding:16px;
-  border:1px solid color-mix(in srgb, var(--muted) 30%, transparent);
+  max-width: 480px;
+  margin: 16px auto;
+  padding: 16px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(80, 0, 0, .15);
 }
 
-/* Gallows drawing */
-svg.stage { display:block; width:200px; height:210px; margin:0 auto; }
-.stage .post { stroke:var(--maroon); stroke-width:6; fill:none; stroke-linecap:round; }
-:root[data-theme="dark"] .stage .post { stroke:var(--accent); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .stage .post { stroke:var(--accent); }
-}
-.stage .part { stroke:var(--line); stroke-width:4; fill:none; stroke-linecap:round; }
-.hidden { display:none; }
+.gallows { display: block; width: 200px; height: 210px; margin: 0 auto; }
+.post { stroke: var(--accent); stroke-width: 6; fill: none; stroke-linecap: round; }
+.part { stroke: var(--ink);    stroke-width: 4; fill: none; stroke-linecap: round; }
+.hidden { display: none; }
 
-/* Clue and the word being guessed */
-#clue { text-align:center; color:var(--muted); margin:6px 0 0; font-style:italic; }
+#clue { margin: 6px 0 0; text-align: center; color: var(--muted); font-style: italic; }
+
 #word {
-  display:flex; justify-content:center; flex-wrap:wrap;
-  gap:6px; margin:14px 0; min-height:2.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  min-height: 2.4rem;
+  margin: 14px 0;
 }
 #word span {
-  width:1.5rem; text-align:center; font-size:1.7rem; line-height:2.2rem;
-  border-bottom:3px solid var(--ink);
+  width: 1.5rem;
+  text-align: center;
+  font-size: 1.7rem;
+  line-height: 2.2rem;
+  border-bottom: 3px solid var(--ink);
 }
 
-/* Win/lose message */
-#status {
-  text-align:center; min-height:1.5em; margin:0 0 10px;
-  font-weight:bold; font-family:system-ui,sans-serif;
-}
-#status.win { color:var(--accent); }
-#status.lose { color:var(--bad); }
+#status { min-height: 1.5em; margin: 0 0 10px; text-align: center; font: bold 1rem system-ui, sans-serif; }
+#status.win  { color: var(--accent); }
+#status.lose { color: var(--bad); }
 
-/* On-screen keyboard */
-#keys {
-  display:grid; grid-template-columns:repeat(7,1fr); gap:6px;
-  font-family:system-ui,sans-serif;
-}
+/* ---------- Keyboard ---------- */
+#keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; font-family: system-ui, sans-serif; }
 #keys button {
-  padding:10px 0; font:inherit; font-weight:bold; color:var(--ink);
-  background:transparent; border:2px solid var(--muted); border-radius:8px; cursor:pointer;
+  padding: 10px 0;
+  font: bold 1rem system-ui, sans-serif;
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
 }
-#keys button:disabled { cursor:default; }
-#keys button.hit { background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
-#keys button.miss {
-  border-color:var(--bad); color:var(--bad);
-  text-decoration:line-through; opacity:.6;
-}
+#keys button:disabled { cursor: default; }
+#keys .hit  { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+#keys .miss { border-color: var(--bad); color: var(--bad); text-decoration: line-through; opacity: .6; }
 
-/* Trivia box and Play again button */
+/* ---------- Trivia and Play again ---------- */
 #fact {
-  margin-top:14px; padding:12px 14px;
-  border-left:5px solid var(--accent); background:var(--note);
-  border-radius:0 10px 10px 0;
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: var(--note);
+  border-left: 5px solid var(--accent);
+  border-radius: 0 10px 10px 0;
 }
-#fact b { display:block; margin-bottom:2px; }
 #again {
-  width:100%; margin-top:14px; padding:12px; font:inherit; font-weight:bold;
-  cursor:pointer; color:var(--accent-ink); background:var(--accent);
-  border:0; border-radius:10px; font-family:system-ui,sans-serif;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  font: bold 1rem system-ui, sans-serif;
+  color: var(--accent-text);
+  background: var(--accent);
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
 }
-button:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }

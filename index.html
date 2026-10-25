@@ -1,33 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aggie Hangman</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aggie Hangman</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><div><h1>Aggie Hangman</h1><span id="score"></span></div></header>
-<main>
-  <div class="card">
-    <svg class="stage" viewBox="0 0 200 210" aria-label="Hangman drawing">
+  <!-- Decorative background: an "A&M" wordmark and two collie silhouettes -->
+  <div class="backdrop" aria-hidden="true">
+    <div class="wordmark">A&amp;M</div>
+    <svg class="collie collie-left" viewBox="0 0 240 160"><use href="#collie"/></svg>
+    <svg class="collie collie-right" viewBox="0 0 240 160"><use href="#collie"/></svg>
+
+    <!-- The collie drawing, defined once and reused above -->
+    <svg width="0" height="0"><defs>
+      <g id="collie">
+        <ellipse cx="110" cy="80" rx="62" ry="30"/>                       <!-- body -->
+        <ellipse cx="160" cy="88" rx="26" ry="30"/>                       <!-- chest ruff -->
+        <polygon points="150,70 180,40 200,48 185,85"/>                   <!-- neck -->
+        <ellipse cx="200" cy="42" rx="18" ry="14"/>                       <!-- head -->
+        <polygon points="208,36 236,46 208,56"/>                          <!-- muzzle -->
+        <polygon points="190,32 186,10 202,26"/>                          <!-- ear -->
+        <rect x="150" y="100" width="9" height="44" rx="4"/>              <!-- front legs -->
+        <rect x="168" y="100" width="9" height="44" rx="4"/>
+        <rect x="62"  y="100" width="10" height="44" rx="4"/>             <!-- back legs -->
+        <rect x="82"  y="100" width="10" height="44" rx="4"/>
+        <path d="M50 72 Q8 60 14 112 Q24 96 46 90 Z"/>                    <!-- tail -->
+      </g>
+    </defs></svg>
+  </div>
+
+  <header>
+    <h1>Aggie Hangman</h1>
+    <span id="score"></span>
+  </header>
+
+  <main class="card">
+    <svg class="gallows" viewBox="0 0 200 210" aria-label="Hangman drawing">
       <path class="post" d="M25 190 H105 M55 190 V20 H140 V45"/>
-      <circle class="part hidden" cx="140" cy="62" r="17"/>
-      <path class="part hidden" d="M140 79 V130"/>
-      <path class="part hidden" d="M140 92 L118 114"/>
-      <path class="part hidden" d="M140 92 L162 114"/>
-      <path class="part hidden" d="M140 130 L121 165"/>
-      <path class="part hidden" d="M140 130 L159 165"/>
+      <circle class="part" cx="140" cy="62" r="17"/>
+      <path class="part" d="M140 79 V130"/>
+      <path class="part" d="M140 92 L118 114"/>
+      <path class="part" d="M140 92 L162 114"/>
+      <path class="part" d="M140 130 L121 165"/>
+      <path class="part" d="M140 130 L159 165"/>
     </svg>
+
     <p id="clue"></p>
     <div id="word" aria-live="polite"></div>
     <p id="status" role="status"></p>
     <div id="keys"></div>
-    <div id="fact" hidden><b>Did you know?</b><span id="factText"></span></div>
-    <button id="again" hidden>Play again</button>
-  </div>
-</main>
 
-<script src="script.js"></script>
+    <div id="fact" hidden><b>Did you know?</b> <span id="factText"></span></div>
+    <button id="again" hidden>Play again</button>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>

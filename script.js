@@ -1,4 +1,4 @@
-// 1. DATA: each entry has a word, a clue, and a fact shown after the round.
+// ---------- Words, clues, and trivia ----------
 const WORDS = [
   { word: "reveille", clue: "Texas A&M’s beloved mascot",
     fact: "Reveille is a collie and holds the honorary rank of five-star general in the Corps of Cadets." },
@@ -19,89 +19,98 @@ const WORDS = [
   { word: "twelfthman", clue: "The spirit of the student section",
     fact: "In 1922, student E. King Gill stood ready on the sideline to play, which inspired the Twelfth Man tradition." }
 ];
-const MAX_WRONG = 6;   // one for each body part in the drawing
+const MAX_WRONG = 6;  // matches the six body parts in the drawing
 
-// 2. STATE: things that change while you play.
-let current, guessed, wrong, over, wins = 0, losses = 0, lastIndex = -1;
+// ---------- State ----------
+let game = {};        // the current round: { entry, guessed, wrong, over }
+let wins = 0, losses = 0;
 
-// 3. Shortcuts to elements on the page.
+// ---------- Page elements ----------
 const $ = (id) => document.getElementById(id);
-const wordEl = $("word"), statusEl = $("status"), keysEl = $("keys");
-const parts = document.querySelectorAll(".stage .part");
+const bodyParts = document.querySelectorAll(".part");
 
-// 4. Start a new round with a random word (never the same one twice in a row).
+// ---------- Starting a round ----------
 function newGame() {
-  let i;
-  do { i = Math.floor(Math.random() * WORDS.length); } while (i === lastIndex);
-  lastIndex = i;
-  current = WORDS[i];
-  guessed = new Set(); wrong = 0; over = false;
+  let entry;
+  do { entry = WORDS[Math.floor(Math.random() * WORDS.length)]; }
+  while (entry === game.entry);               // avoid the same word twice in a row
 
-  $("clue").textContent = "Clue: " + current.clue;
-  statusEl.textContent = ""; statusEl.className = "";
-  $("fact").hidden = true; $("again").hidden = true;
-  updateScore();
+  game = { entry, guessed: new Set(), wrong: 0, over: false };
 
-  keysEl.innerHTML = "";
+  $("clue").textContent = "Clue: " + entry.clue;
+  $("status").textContent = "";
+  $("status").className = "";
+  $("fact").hidden = true;
+  $("again").hidden = true;
+
+  buildKeyboard();
+  draw();
+}
+
+function buildKeyboard() {
+  $("keys").innerHTML = "";
   for (const letter of "abcdefghijklmnopqrstuvwxyz") {
-    const b = document.createElement("button");
-    b.textContent = letter;
-    b.dataset.key = letter;
-    b.addEventListener("click", () => guess(letter));
-    keysEl.appendChild(b);
+    const button = document.createElement("button");
+    button.textContent = letter;
+    button.id = "key-" + letter;
+    button.addEventListener("click", () => guess(letter));
+    $("keys").appendChild(button);
   }
-  render();
 }
 
-function updateScore() {
-  $("score").textContent = "Wins " + wins + " · Losses " + losses;
-}
-
-// 5. Handle one guessed letter.
+// ---------- Guessing ----------
 function guess(letter) {
-  if (over || guessed.has(letter)) return;
-  guessed.add(letter);
-  const btn = keysEl.querySelector('[data-key="' + letter + '"]');
-  btn.disabled = true;
-  if (current.word.includes(letter)) btn.classList.add("hit");
-  else { btn.classList.add("miss"); wrong++; }
-  render();
-  checkEnd();
+  if (game.over || game.guessed.has(letter)) return;
+  game.guessed.add(letter);
+
+  const isHit = game.entry.word.includes(letter);
+  if (!isHit) game.wrong++;
+
+  const key = $("key-" + letter);
+  key.disabled = true;
+  key.classList.add(isHit ? "hit" : "miss");
+
+  draw();
+  checkForEnd();
 }
 
-// 6. Redraw the word blanks and the stick figure.
-function render() {
-  wordEl.innerHTML = "";
-  for (const letter of current.word) {
+// ---------- Drawing the screen ----------
+function draw() {
+  const revealAll = game.over && game.wrong >= MAX_WRONG;
+
+  $("word").innerHTML = "";
+  for (const letter of game.entry.word) {
     const box = document.createElement("span");
-    const show = guessed.has(letter) || (over && wrong >= MAX_WRONG);
-    box.textContent = show ? letter : "";
-    wordEl.appendChild(box);
+    box.textContent = game.guessed.has(letter) || revealAll ? letter : "";
+    $("word").appendChild(box);
   }
-  parts.forEach((part, i) => part.classList.toggle("hidden", i >= wrong));
+
+  bodyParts.forEach((part, i) => part.classList.toggle("hidden", i >= game.wrong));
+  $("score").textContent = `Wins ${wins} · Losses ${losses}`;
 }
 
-// 7. Did the player win or lose? If so, show the fact.
-function checkEnd() {
-  const won = [...current.word].every((letter) => guessed.has(letter));
-  if (!won && wrong < MAX_WRONG) return;
+// ---------- Winning and losing ----------
+function checkForEnd() {
+  const won = [...game.entry.word].every((letter) => game.guessed.has(letter));
+  if (!won && game.wrong < MAX_WRONG) return;
 
-  over = true;
-  if (won) wins++; else losses++;
-  statusEl.textContent = won ? "Gig ’em! You got it." : "The word was " + current.word + ".";
-  statusEl.className = won ? "win" : "lose";
-  keysEl.querySelectorAll("button").forEach((b) => (b.disabled = true));
-  updateScore();
-  $("factText").textContent = current.fact;
+  game.over = true;
+  won ? wins++ : losses++;
+
+  $("status").textContent = won ? "Gig ’em! You got it." : "The word was " + game.entry.word + ".";
+  $("status").className = won ? "win" : "lose";
+  $("factText").textContent = game.entry.fact;
   $("fact").hidden = false;
   $("again").hidden = false;
-  render();
+  document.querySelectorAll("#keys button").forEach((b) => (b.disabled = true));
+
+  draw();
   $("again").focus();
 }
 
+// ---------- Controls ----------
 $("again").addEventListener("click", newGame);
 
-// Keyboard typing works too.
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (/^[a-z]$/i.test(e.key)) guess(e.key.toLowerCase());
